@@ -15,6 +15,7 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "root")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, [])
         XCTAssertEqual(values, [])
@@ -35,6 +36,10 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "root")
+        XCTAssertEqual(try parsedXml.getTagName(of: 6), "child1")
+        XCTAssertEqual(try parsedXml.getTagName(of: 10), "child2")
+        XCTAssertEqual(try parsedXml.getTagName(of: 14), "child3")
         XCTAssertTrue(try parsedXml.hasChildren(at: 0))
         XCTAssertEqual(try parsedXml.getChildren(of: 0), [6, 10, 14])
         XCTAssertEqual(keys, ["att1", "att2"])
@@ -52,6 +57,7 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, [])
         XCTAssertEqual(values, [])
@@ -69,6 +75,7 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, [])
         XCTAssertEqual(values, [])
@@ -85,6 +92,7 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, [])
         XCTAssertEqual(values, [])
@@ -101,6 +109,7 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, [])
         XCTAssertEqual(values, [])
@@ -117,6 +126,7 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, ["attribute"])
         XCTAssertEqual(values, ["value"])
@@ -134,6 +144,7 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, ["attribute"])
         XCTAssertEqual(values, ["value"])
@@ -150,6 +161,7 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, ["attribute"])
         XCTAssertEqual(values, ["value"])
@@ -166,6 +178,7 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertFalse(try parsedXml.hasChildren(at: 0))
         XCTAssertFalse(try parsedXml.hasContent(at: 0))
@@ -185,6 +198,7 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, ["attribute"])
         XCTAssertEqual(values, ["value"])
@@ -202,6 +216,7 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, ["attribute"])
         XCTAssertEqual(values, [""])
@@ -218,6 +233,7 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, ["attribute"])
         XCTAssertEqual(values, [""])
@@ -234,6 +250,7 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, ["attribute"])
         XCTAssertEqual(values, [""])
@@ -251,10 +268,10 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, ["attribute"])
-        // TODO: process escaped values
-        // XCTAssertEqual(values, ["\""])
+        XCTAssertEqual(values, ["\""])
     }
 
     func testParseSingleEmptyTagWithEscapedAttribute() throws {
@@ -268,6 +285,7 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, ["attribute"])
         XCTAssertEqual(values, ["\""])
@@ -284,8 +302,49 @@ public final class ParsedXMLTests: XCTestCase {
         let keys = attributes.map { $0.0 }
         let values = attributes.map { $0.1 }
 
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, ["attribute"])
         XCTAssertEqual(values, ["\""])
+    }
+
+    func testParseDeclarationWithCommentAfter() throws {
+        // TODO: handle comments
+        // let xml = """
+        // <? version="1.0" encoding="UTF-8" standalone="yes" ?>
+        // <root></root>
+        // <!-- just some <comment> -->
+        // """
+
+        // let parsedXml = try ParsedXML(from: xml)
+
+        // let attributes = try parsedXml.getTagAttributes(of: 0)
+        // let keys = attributes.map { $0.0 }
+        // let values = attributes.map { $0.1 }
+
+        // XCTAssertEqual(try parsedXml.getTagName(of: 0), "root")
+        // XCTAssertTrue(try parsedXml.isEmpty(at: 0))
+        // XCTAssertEqual(keys, [])
+        // XCTAssertEqual(values, [])
+    }
+
+    func testParseDeclarationWithCommentBefore() throws {
+        // TODO: handle comments
+        // let xml = """
+        // <!-- just some <comment> -->
+        // <? version="1.0" encoding="UTF-8" standalone="yes" ?>
+        // <root></root>
+        // """
+
+        // let parsedXml = try ParsedXML(from: xml)
+
+        // let attributes = try parsedXml.getTagAttributes(of: 0)
+        // let keys = attributes.map { $0.0 }
+        // let values = attributes.map { $0.1 }
+
+        // XCTAssertEqual(try parsedXml.getTagName(of: 0), "root")
+        // XCTAssertTrue(try parsedXml.isEmpty(at: 0))
+        // XCTAssertEqual(keys, [])
+        // XCTAssertEqual(values, [])
     }
 }
