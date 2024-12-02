@@ -90,7 +90,7 @@ public final class ParsedXMLTests: XCTestCase {
         XCTAssertEqual(values, [])
     }
 
-    func testParseSingleTimmedEmptyTag() throws {
+    func testParseSingleTrimmedEmptyTag() throws {
         let xml = """
         <tag/>
         """
@@ -155,7 +155,7 @@ public final class ParsedXMLTests: XCTestCase {
         XCTAssertEqual(values, ["value"])
     }
 
-    func testParseSingleTimmedEmptyTagWithAttribute() throws {
+    func testParseSingleTrimmedEmptyTagWithAttribute() throws {
         let xml = """
         <tag attribute="value"/>
         """
@@ -223,7 +223,7 @@ public final class ParsedXMLTests: XCTestCase {
         XCTAssertEqual(values, [""])
     }
 
-    func testParseSingleTimmedEmptyTagWithEmptyAttribute() throws {
+    func testParseSingleTrimmedEmptyTagWithEmptyAttribute() throws {
         let xml = """
         <tag attribute=""/>
         """
@@ -270,11 +270,10 @@ public final class ParsedXMLTests: XCTestCase {
 
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, ["attribute"])
-        // TODO: process escaped values
-        // XCTAssertEqual(values, ["\""])
+        XCTAssertEqual(values, ["\""])
     }
 
-    func testParseSingleTimmedEmptyTagWithEscapedAttribute() throws {
+    func testParseSingleTrimmedEmptyTagWithEscapedAttribute() throws {
         let xml = """
         <tag attribute="\\""/>
         """
@@ -287,7 +286,6 @@ public final class ParsedXMLTests: XCTestCase {
 
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, ["attribute"])
-        // TODO: process escaped values
-        // XCTAssertEqual(values, ["\""])
+        XCTAssertEqual(values, ["\""])
     }
 }

@@ -1,5 +1,5 @@
 public final class ParsedXML: Sendable {
-    /// A tree stored as a single array for efficency reasons.
+    /// A tree stored as a single array for efficiency reasons.
     ///
     /// Values are encoded like this:
     /// | substring value | int value                   |
@@ -304,7 +304,7 @@ public final class ParsedXML: Sendable {
             case .readingSingleQuoted:
                 guard character != "'" else {
                     let attributeValue = xml[startStringIndex ..< index]
-                    treeBuilder.addAttribute(value: attributeValue)
+                    treeBuilder.addAttribute(value: Self.resolveEscaping(value: attributeValue, escapeEnd: "'"))
                     state = .preAttributePadding
                     continue
                 }
@@ -332,7 +332,7 @@ public final class ParsedXML: Sendable {
             case .readingDoubleQuoted:
                 guard character != "\"" else {
                     let attributeValue = xml[startStringIndex ..< index]
-                    treeBuilder.addAttribute(value: attributeValue)
+                    treeBuilder.addAttribute(value: Self.resolveEscaping(value: attributeValue, escapeEnd: "\""))
                     state = .preAttributePadding
                     continue
                 }
@@ -379,20 +379,15 @@ public final class ParsedXML: Sendable {
         self.tree = treeBuilder.values
     }
 
-    fileprivate static func resolveEscaping(value: Substring, escapingEnd: Character, escapeEnd: Character) -> Substring {
-        return value.replacing("\(escapingEnd)\(escapingEnd)", with: "\(escapingEnd)").replacing("\(escapingEnd)\(escapeEnd)", with: "\(escapeEnd)")
+    fileprivate static func resolveEscaping(value: Substring, escapeEnd: Character) -> Substring {
+        return value.replacing("\\\\", with: "\\").replacing("\\\(escapeEnd)", with: "\(escapeEnd)")
     }
 
     struct TreeBuilder {
         private var openTagStack = Array<(Substring, Int)>()
         private(set) var values = Array<(Substring, Int)>()
 
-        // mutating func () {
-
-        // }
-
         mutating func addTag(named name: Substring) {
-            print("added tag name \(name)")
             if let topElement = self.openTagStack.last, self.values[topElement.1 + 1].1 == 0 {
                 self.values[topElement.1 + 1].1 = self.values.count
             }
@@ -402,17 +397,14 @@ public final class ParsedXML: Sendable {
         }
 
         mutating func addAttribute(key: Substring) {
-            print("added attribute key \(key)")
             self.values.append((key, 0))
         }
 
         mutating func addAttribute(value: Substring) {
-            print("added attribute value \(value)")
             self.values.append((value, 0))
         }
 
         mutating func addContent(value: Substring) throws {
-            print("added content value \(value)")
             guard let topElement = self.openTagStack.last else {
                 fatalError()
             }
@@ -421,7 +413,6 @@ public final class ParsedXML: Sendable {
         }
 
         mutating func closeTag(named name: Substring) throws {
-            print("closed tag name \(name) \(self.openTagStack)")
             guard !self.openTagStack.isEmpty else {
                 throw XMLParserError.closedTagWithoutOpening(named: name)
             }
@@ -434,7 +425,6 @@ public final class ParsedXML: Sendable {
         }
 
         mutating func closeTag() throws {
-            print("closed tag unnamed")
             guard !self.openTagStack.isEmpty else {
                 throw XMLParserError.closedTagWithoutOpeningUnnamed
             }
