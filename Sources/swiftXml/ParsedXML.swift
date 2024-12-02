@@ -141,7 +141,6 @@ public final class ParsedXML: Sendable {
 
     public init(from xml: String) throws {
         enum State {
-            // TODO: handle comments
             // TODO: handle tag content
             case preFirstTagPadding
             case readFirstOpenTag
@@ -164,6 +163,11 @@ public final class ParsedXML: Sendable {
             case readNamedClosingTagStart
             case readingNamedClosingTag
             case postNamedClosingTag
+            case readingCommentStartDash1
+            case readingCommentStartDash2
+            case readingCommentEndDash1
+            case readingCommentEndDash2
+            case readingCommentEnd
         }
 
         var startStringIndex = xml.startIndex
@@ -188,6 +192,8 @@ public final class ParsedXML: Sendable {
                     fatalError("")
                 } else if character == "/" {
                     fatalError("")
+                } else if character == "!" {
+                    state = .readingCommentStartDash1
                 } else {
                     startStringIndex = index
                     state = .readingOpeningTag
@@ -218,6 +224,10 @@ public final class ParsedXML: Sendable {
                 guard character != "/" else {
                     startStringIndex = index
                     state = .readNamedClosingTagStart
+                    continue
+                }
+                guard character != "!" else {
+                    state = .readingCommentStartDash1
                     continue
                 }
                 state = .readingOpeningTag
@@ -373,6 +383,32 @@ public final class ParsedXML: Sendable {
                     try treeBuilder.closeTag(named: tagName)
                     state = .preTagPadding
                 }
+            case .readingCommentStartDash1:
+                guard character == "-" else {
+                    fatalError("ill formed comment")
+                }
+                state = .readingCommentStartDash2
+            case .readingCommentStartDash2:
+                guard character == "-" else {
+                    fatalError("ill formed comment")
+                }
+                state = .readingCommentEndDash1
+            case .readingCommentEndDash1:
+                guard character == "-" else {
+                    continue
+                }
+                state = .readingCommentEndDash2
+            case .readingCommentEndDash2:
+                guard character == "-" else {
+                    state = .readingCommentEndDash1
+                    continue
+                }
+                state = .readingCommentEnd
+            case .readingCommentEnd:
+                guard character == ">" else {
+                    fatalError("ill formed xml")
+                }
+                state = .preTagPadding
             }
         }
 

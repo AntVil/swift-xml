@@ -309,42 +309,40 @@ public final class ParsedXMLTests: XCTestCase {
     }
 
     func testParseDeclarationWithCommentAfter() throws {
-        // TODO: handle comments
-        // let xml = """
-        // <? version="1.0" encoding="UTF-8" standalone="yes" ?>
-        // <root></root>
-        // <!-- just some <comment> -->
-        // """
+        let xml = """
+        <? version="1.0" encoding="UTF-8" standalone="yes" ?>
+        <root></root>
+        <!-- just some <comment> -->
+        """
 
-        // let parsedXml = try ParsedXML(from: xml)
+        let parsedXml = try ParsedXML(from: xml)
 
-        // let attributes = try parsedXml.getTagAttributes(of: 0)
-        // let keys = attributes.map { $0.0 }
-        // let values = attributes.map { $0.1 }
+        let attributes = try parsedXml.getTagAttributes(of: 0)
+        let keys = attributes.map { $0.0 }
+        let values = attributes.map { $0.1 }
 
-        // XCTAssertEqual(try parsedXml.getTagName(of: 0), "root")
-        // XCTAssertTrue(try parsedXml.isEmpty(at: 0))
-        // XCTAssertEqual(keys, [])
-        // XCTAssertEqual(values, [])
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "root")
+        XCTAssertTrue(try parsedXml.isEmpty(at: 0))
+        XCTAssertEqual(keys, [])
+        XCTAssertEqual(values, [])
     }
 
     func testParseDeclarationWithCommentBefore() throws {
-        // TODO: handle comments
-        // let xml = """
-        // <!-- just some <comment> -->
-        // <? version="1.0" encoding="UTF-8" standalone="yes" ?>
-        // <root></root>
-        // """
+        let xml = """
+        <? version="1.0" encoding="UTF-8" standalone="yes" ?>
+        <!-- just some <comment> -->
+        <root></root>
+        """
 
-        // let parsedXml = try ParsedXML(from: xml)
+        let parsedXml = try ParsedXML(from: xml)
 
-        // let attributes = try parsedXml.getTagAttributes(of: 0)
-        // let keys = attributes.map { $0.0 }
-        // let values = attributes.map { $0.1 }
+        let attributes = try parsedXml.getTagAttributes(of: 0)
+        let keys = attributes.map { $0.0 }
+        let values = attributes.map { $0.1 }
 
-        // XCTAssertEqual(try parsedXml.getTagName(of: 0), "root")
-        // XCTAssertTrue(try parsedXml.isEmpty(at: 0))
-        // XCTAssertEqual(keys, [])
-        // XCTAssertEqual(values, [])
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "root")
+        XCTAssertTrue(try parsedXml.isEmpty(at: 0))
+        XCTAssertEqual(keys, [])
+        XCTAssertEqual(values, [])
     }
 }
