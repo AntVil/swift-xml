@@ -168,9 +168,12 @@ public final class ParsedXML: Sendable {
             case readingCommentEndDash1
             case readingCommentEndDash2
             case readingCommentEnd
+            case readingTagContent
+            case postContent
         }
 
         var startStringIndex = xml.startIndex
+        var endStringIndex = xml.startIndex
         var state = State.preFirstTagPadding
 
         var treeBuilder = TreeBuilder()
@@ -216,6 +219,9 @@ public final class ParsedXML: Sendable {
                 if character == "<" {
                     startStringIndex = index
                     state = .readTagStart
+                } else {
+                    startStringIndex = index
+                    state = .readingTagContent
                 }
             case .readTagStart:
                 guard character != " " && character != "\n" else {
@@ -409,6 +415,23 @@ public final class ParsedXML: Sendable {
                     fatalError("ill formed xml")
                 }
                 state = .preTagPadding
+            case .readingTagContent:
+                if character == "<" {
+                    let content = xml[startStringIndex ..< index]
+                    try treeBuilder.addContent(value: content)
+                    state = .readTagStart
+                } else if character == " " || character == "\n" {
+                    endStringIndex = index
+                    state = .postContent
+                }
+            case .postContent:
+                if character == "<" {
+                    let content = xml[startStringIndex ..< endStringIndex]
+                    try treeBuilder.addContent(value: content)
+                    state = .readTagStart
+                } else if character != " " && character != "\n" {
+                    state = .readingTagContent
+                }
             }
         }
 
