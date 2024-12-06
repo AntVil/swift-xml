@@ -320,7 +320,7 @@ public final class ParsedXML: Sendable {
             case .readingSingleQuoted:
                 guard character != "'" else {
                     let attributeValue = xml[startStringIndex ..< index]
-                    treeBuilder.addAttribute(value: Self.resolveEscaping(value: attributeValue, escapeEnd: "'"))
+                    treeBuilder.addAttribute(value: Self.resolveEscapingAttribute(value: attributeValue, escapeEnd: "'"))
                     state = .preAttributePadding
                     continue
                 }
@@ -348,7 +348,7 @@ public final class ParsedXML: Sendable {
             case .readingDoubleQuoted:
                 guard character != "\"" else {
                     let attributeValue = xml[startStringIndex ..< index]
-                    treeBuilder.addAttribute(value: Self.resolveEscaping(value: attributeValue, escapeEnd: "\""))
+                    treeBuilder.addAttribute(value: Self.resolveEscapingAttribute(value: attributeValue, escapeEnd: "\""))
                     state = .preAttributePadding
                     continue
                 }
@@ -418,7 +418,7 @@ public final class ParsedXML: Sendable {
             case .readingTagContent:
                 if character == "<" {
                     let content = xml[startStringIndex ..< index]
-                    try treeBuilder.addContent(value: content)
+                    try treeBuilder.addContent(value: Self.resolveEscapingContent(value: content))
                     state = .readTagStart
                 } else if character == " " || character == "\n" {
                     endStringIndex = index
@@ -427,7 +427,7 @@ public final class ParsedXML: Sendable {
             case .postContent:
                 if character == "<" {
                     let content = xml[startStringIndex ..< endStringIndex]
-                    try treeBuilder.addContent(value: content)
+                    try treeBuilder.addContent(value: Self.resolveEscapingContent(value: content))
                     state = .readTagStart
                 } else if character != " " && character != "\n" {
                     state = .readingTagContent
@@ -438,8 +438,17 @@ public final class ParsedXML: Sendable {
         self.tree = treeBuilder.values
     }
 
-    fileprivate static func resolveEscaping(value: Substring, escapeEnd: Character) -> Substring {
+    fileprivate static func resolveEscapingAttribute(value: Substring, escapeEnd: Character) -> Substring {
         return value.replacing("\\\\", with: "\\").replacing("\\\(escapeEnd)", with: "\(escapeEnd)")
+    }
+
+    fileprivate static func resolveEscapingContent(value: Substring) -> Substring {
+        return value
+            .replacing("&quot;", with: "\"")
+            .replacing("&apos;", with: "'")
+            .replacing("&lt;", with: "<")
+            .replacing("&gt;", with: ">")
+            .replacing("&amp;", with: "&")
     }
 
     struct TreeBuilder {

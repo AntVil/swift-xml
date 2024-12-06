@@ -419,4 +419,24 @@ public final class ParsedXMLTests: XCTestCase {
         XCTAssertEqual(values, [])
         XCTAssertEqual(try parsedXml.getTagContent(of: 0), "Hello World")
     }
+
+    func testParseEscapedContent() throws {
+        let xml = """
+        <root>
+            &quot;&apos;&lt;&gt;&amp;
+        </root>
+        """
+
+        let parsedXml = try ParsedXML(from: xml)
+
+        let attributes = try parsedXml.getTagAttributes(of: 0)
+        let keys = attributes.map { $0.0 }
+        let values = attributes.map { $0.1 }
+
+        XCTAssertEqual(try parsedXml.getTagName(of: 0), "root")
+        XCTAssertFalse(try parsedXml.isEmpty(at: 0))
+        XCTAssertEqual(keys, [])
+        XCTAssertEqual(values, [])
+        XCTAssertEqual(try parsedXml.getTagContent(of: 0), "\"'<>&")
+    }
 }
