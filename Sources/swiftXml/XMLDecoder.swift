@@ -2,6 +2,8 @@ import Foundation
 
 public struct XMLDecoder: Sendable {
     public var userInfo: [CodingUserInfoKey: Sendable] = [:]
+    public var nilDecodingStrategy: NilDecodingStrategy = .empty
+    public var boolDecodingStrategy: BoolDecodingStrategy = .trueOrFalse
 
     public init() {}
 
@@ -11,21 +13,63 @@ public struct XMLDecoder: Sendable {
             xml: parsedXML,
             userInfo: self.userInfo,
             options: XMLDecoderOptions(
-                trueLiteral: "true",
-                falseLiteral: "false",
-                nilLiteral: ""
+                nilDecodingStrategy: self.nilDecodingStrategy,
+                boolDecodingStrategy: self.boolDecodingStrategy
             ),
             tagIndex: 0
         )
 
         return try T.init(from: decoder)
     }
+
+    public enum NilDecodingStrategy: Sendable {
+        case never
+        case empty
+        case null
+        case custom(nil: String)
+
+        var nilLiteral: Substring? {
+            switch self {
+            case .never: return nil
+            case .empty: return ""
+            case .null: return "null"
+            case .custom(let literal): return Substring(literal)
+            }
+        }
+    }
+
+    public enum BoolDecodingStrategy: Sendable {
+        case trueOrFalse
+        case zeroOrOne
+        case custom(true: String, false: String)
+
+        var trueLiteral: Substring {
+            switch self {
+            case .trueOrFalse: return "true"
+            case .zeroOrOne: return "1"
+            case .custom(let literal, _): return Substring(literal)
+            }
+        }
+        var falseLiteral: Substring {
+            switch self {
+            case .trueOrFalse: return "false"
+            case .zeroOrOne: return "0"
+            case .custom(_, let literal): return Substring(literal)
+            }
+        }
+    }
 }
 
 fileprivate struct XMLDecoderOptions {
+    let nilLiteral: Substring?
     let trueLiteral: Substring
     let falseLiteral: Substring
-    let nilLiteral: Substring
+
+    init(nilDecodingStrategy: XMLDecoder.NilDecodingStrategy, boolDecodingStrategy: XMLDecoder.BoolDecodingStrategy) {
+        self.nilLiteral = nilDecodingStrategy.nilLiteral
+        self.trueLiteral = boolDecodingStrategy.trueLiteral
+        self.falseLiteral = boolDecodingStrategy.falseLiteral
+    }
 }
 
 fileprivate final class XMLContainerDecoder: Decoder, Sendable {
