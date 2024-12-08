@@ -118,7 +118,7 @@ fileprivate struct XMLContainer<Key: CodingKey>: KeyedDecodingContainerProtocol 
 
     let codingPath: [any CodingKey] = []
     var allKeys: [Key] {
-        fatalError("TODO")
+        return attributes.compactMap { Key(stringValue: String($0.0)) }
     }
 
     func getContent(forKey key: Key) throws -> Substring {
@@ -452,10 +452,15 @@ fileprivate struct XMLContainer<Key: CodingKey>: KeyedDecodingContainerProtocol 
         if try self.decoder.xml.hasChildren(at: self.decoder.tagIndex) {
             let decoder = XMLChildrenDecoder(xml: self.decoder.xml, codingPath: self.codingPath + [key], userInfo: self.decoder.userInfoSendable, options: self.decoder.options, tagIndex: self.decoder.tagIndex)
             return try T.init(from: decoder)
-        } else {
+        } else if try self.decoder.xml.hasContent(at: self.decoder.tagIndex) {
             fatalError("TODO")
             // let decoder = XMLContentDecoder(content: attribute.1, codingPath: self.codingPath + [key], userInfo: self.decoder.userInfoSendable)
             // return try T.init(from: decoder)
+        } else {
+            throw DecodingError.valueNotFound(
+                T.self,
+                DecodingError.Context(codingPath: self.codingPath + [key], debugDescription: "There is no children/content to decode")
+            )
         }
     }
 
@@ -589,7 +594,12 @@ fileprivate struct XMLChildrenContainer: UnkeyedDecodingContainer {
     }
 
     mutating func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey : CodingKey {
-        fatalError("todo nestedContainer")
+        guard !isAtEnd else {
+            throw DecodingError.valueNotFound(Decodable.self, DecodingError.Context(codingPath: self.codingPath, debugDescription: "Cannot decode 'any Decodable' value because already at end"))
+        }
+        let decoder = XMLContainerDecoder(xml: self.decoder.xml, userInfo: self.decoder.userInfoSendable, options: self.decoder.options, tagIndex: self.decoder.childTagIndices[self.currentIndex])
+        self.currentIndex += 1
+        return KeyedDecodingContainer(XMLContainer<NestedKey>(decoder: decoder))
     }
 
     mutating func nestedUnkeyedContainer() throws -> any UnkeyedDecodingContainer {
@@ -930,6 +940,6 @@ fileprivate class XMLContentDecoder: Decoder {
     }
 
     func singleValueContainer() throws -> any SingleValueDecodingContainer {
-        fatalError("")
+        fatalError("TODO")
     }
 }
