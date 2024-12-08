@@ -258,7 +258,7 @@ public final class ParsedXMLTests: XCTestCase {
 
     func testParseSingleTagWithNewLineWithEscapedAttribute() throws {
         let xml = """
-        <tag attribute="\\""></tag>
+        <tag attribute="&quot;"></tag>
 
         """
 
@@ -276,7 +276,7 @@ public final class ParsedXMLTests: XCTestCase {
 
     func testParseSingleEmptyTagWithEscapedAttribute() throws {
         let xml = """
-        <tag attribute="\\"" />
+        <tag attribute="&quot;" />
         """
 
         let parsedXml = try ParsedXML(from: xml)
@@ -293,7 +293,7 @@ public final class ParsedXMLTests: XCTestCase {
 
     func testParseSingleTrimmedEmptyTagWithEscapedAttribute() throws {
         let xml = """
-        <tag attribute="\\""/>
+        <tag attribute="\\&quot;"/>
         """
 
         let parsedXml = try ParsedXML(from: xml)
@@ -305,7 +305,7 @@ public final class ParsedXMLTests: XCTestCase {
         XCTAssertEqual(try parsedXml.getTagName(of: 0), "tag")
         XCTAssertTrue(try parsedXml.isEmpty(at: 0))
         XCTAssertEqual(keys, ["attribute"])
-        XCTAssertEqual(values, ["\""])
+        XCTAssertEqual(values, ["\\\""])
     }
 
     func testParseDeclarationWithCommentAfter() throws {

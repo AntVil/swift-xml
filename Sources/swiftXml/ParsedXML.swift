@@ -157,8 +157,6 @@ public final class ParsedXML: Sendable {
             case readDoubleQuotedStart
             case readingSingleQuoted
             case readingDoubleQuoted
-            case readingSingleQuotedEscaped
-            case readingDoubleQuotedEscaped
             case readUnnamedClosingTagStart
             case readNamedClosingTagStart
             case readingNamedClosingTag
@@ -312,27 +310,14 @@ public final class ParsedXML: Sendable {
                     continue
                 }
                 startStringIndex = index
-                guard character != "\\" else {
-                    state = .readingSingleQuotedEscaped
-                    continue
-                }
                 state = .readingSingleQuoted
             case .readingSingleQuoted:
                 guard character != "'" else {
                     let attributeValue = xml[startStringIndex ..< index]
-                    treeBuilder.addAttribute(value: Self.resolveEscapingAttribute(value: attributeValue, escapeEnd: "'"))
+                    treeBuilder.addAttribute(value: Self.resolveEscapingAttribute(value: attributeValue))
                     state = .preAttributePadding
                     continue
                 }
-                guard character != "\\" else {
-                    state = .readingSingleQuotedEscaped
-                    continue
-                }
-            case .readingSingleQuotedEscaped:
-                guard character == "\\" || character == "'" else {
-                    fatalError("got unexpected character: '\(character)' in state: '\(state)' substring: '\(xml[startStringIndex...index])'")
-                }
-                state = .readingSingleQuoted
             case .readDoubleQuotedStart:
                 guard character != "\"" else {
                     treeBuilder.addAttribute(value: Substring())
@@ -340,27 +325,14 @@ public final class ParsedXML: Sendable {
                     continue
                 }
                 startStringIndex = index
-                guard character != "\\" else {
-                    state = .readingDoubleQuotedEscaped
-                    continue
-                }
                 state = .readingDoubleQuoted
             case .readingDoubleQuoted:
                 guard character != "\"" else {
                     let attributeValue = xml[startStringIndex ..< index]
-                    treeBuilder.addAttribute(value: Self.resolveEscapingAttribute(value: attributeValue, escapeEnd: "\""))
+                    treeBuilder.addAttribute(value: Self.resolveEscapingAttribute(value: attributeValue))
                     state = .preAttributePadding
                     continue
                 }
-                guard character != "\\" else {
-                    state = .readingDoubleQuotedEscaped
-                    continue
-                }
-            case .readingDoubleQuotedEscaped:
-                guard character == "\\" || character == "\"" else {
-                    fatalError("got unexpected character: '\(character)' in state: '\(state)' substring: '\(xml[startStringIndex...index])'")
-                }
-                state = .readingDoubleQuoted
             case .readUnnamedClosingTagStart:
                 guard character == ">" else {
                     fatalError("got unexpected character: '\(character)' in state: '\(state)' substring: '\(xml[startStringIndex...index])'")
@@ -438,8 +410,13 @@ public final class ParsedXML: Sendable {
         self.tree = treeBuilder.values
     }
 
-    fileprivate static func resolveEscapingAttribute(value: Substring, escapeEnd: Character) -> Substring {
-        return value.replacing("\\\\", with: "\\").replacing("\\\(escapeEnd)", with: "\(escapeEnd)")
+    fileprivate static func resolveEscapingAttribute(value: Substring) -> Substring {
+        return value
+            .replacing("&quot;", with: "\"")
+            .replacing("&apos;", with: "'")
+            .replacing("&lt;", with: "<")
+            .replacing("&gt;", with: ">")
+            .replacing("&amp;", with: "&")
     }
 
     fileprivate static func resolveEscapingContent(value: Substring) -> Substring {
