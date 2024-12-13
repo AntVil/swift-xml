@@ -453,9 +453,9 @@ fileprivate struct XMLContainer<Key: CodingKey>: KeyedDecodingContainerProtocol 
             let decoder = XMLChildrenDecoder(xml: self.decoder.xml, codingPath: self.codingPath + [key], userInfo: self.decoder.userInfoSendable, options: self.decoder.options, tagIndex: self.decoder.tagIndex)
             return try T.init(from: decoder)
         } else if try self.decoder.xml.hasContent(at: self.decoder.tagIndex) {
-            fatalError("TODO")
-            // let decoder = XMLContentDecoder(content: attribute.1, codingPath: self.codingPath + [key], userInfo: self.decoder.userInfoSendable)
-            // return try T.init(from: decoder)
+            let content = try self.decoder.xml.getTagContent(of: self.decoder.tagIndex)
+            let decoder = XMLContentDecoder(contentValue: content, codingPath: self.codingPath + [key], userInfo: self.decoder.userInfoSendable, options: self.decoder.options)
+            return try T.init(from: decoder)
         } else {
             throw DecodingError.valueNotFound(
                 T.self,
@@ -916,7 +916,7 @@ fileprivate class XMLChildrenDecoder: Decoder {
     }
 }
 
-fileprivate class XMLContentDecoder: Decoder {
+fileprivate struct XMLContentDecoder: Decoder, SingleValueDecodingContainer {
     let contentValue: Substring
     let options: XMLDecoderOptions
     let codingPath: [any CodingKey]
@@ -940,6 +940,151 @@ fileprivate class XMLContentDecoder: Decoder {
     }
 
     func singleValueContainer() throws -> any SingleValueDecodingContainer {
-        fatalError("TODO")
+        return self
+    }
+
+    func decodeNil() -> Bool {
+        return self.contentValue == self.options.nilLiteral
+    }
+
+    func decode(_ type: Bool.Type) throws -> Bool {
+        if self.contentValue == self.options.trueLiteral {
+            return true
+        } else if self.contentValue == self.options.falseLiteral {
+            return false
+        } else {
+            throw DecodingError.typeMismatch(
+                Bool.self,
+                DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode 'Bool'.")
+            )
+        }
+    }
+
+    func decode(_ type: Float.Type) throws -> Float {
+        guard let result = Float(self.contentValue) else {
+            throw DecodingError.typeMismatch(
+                Float.self,
+                DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode 'Float'.")
+            )
+        }
+        return result
+    }
+
+    func decode(_ type: Double.Type) throws -> Double {
+        guard let result = Double(self.contentValue) else {
+            throw DecodingError.typeMismatch(
+                Double.self,
+                DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode 'Double'.")
+            )
+        }
+        return result
+    }
+
+    func decode(_ type: Int.Type) throws -> Int {
+        guard let result = Int(self.contentValue) else {
+            throw DecodingError.typeMismatch(
+                Int.self,
+                DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode 'Int'.")
+            )
+        }
+        return result
+    }
+
+    func decode(_ type: Int64.Type) throws -> Int64 {
+        guard let result = Int64(self.contentValue) else {
+            throw DecodingError.typeMismatch(
+                Int64.self,
+                DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode 'Int64'.")
+            )
+        }
+        return result
+    }
+
+    func decode(_ type: Int32.Type) throws -> Int32 {
+        guard let result = Int32(self.contentValue) else {
+            throw DecodingError.typeMismatch(
+                Int32.self,
+                DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode 'Int32'.")
+            )
+        }
+        return result
+    }
+
+    func decode(_ type: Int16.Type) throws -> Int16 {
+        guard let result = Int16(self.contentValue) else {
+            throw DecodingError.typeMismatch(
+                Int16.self,
+                DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode 'Int16'.")
+            )
+        }
+        return result
+    }
+
+    func decode(_ type: Int8.Type) throws -> Int8 {
+        guard let result = Int8(self.contentValue) else {
+            throw DecodingError.typeMismatch(
+                Int8.self,
+                DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode 'Int8'.")
+            )
+        }
+        return result
+    }
+
+    func decode(_ type: UInt.Type) throws -> UInt {
+        guard let result = UInt(self.contentValue) else {
+            throw DecodingError.typeMismatch(
+                UInt.self,
+                DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode 'UInt'.")
+            )
+        }
+        return result
+    }
+
+    func decode(_ type: UInt64.Type) throws -> UInt64 {
+        guard let result = UInt64(self.contentValue) else {
+            throw DecodingError.typeMismatch(
+                UInt64.self,
+                DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode 'UInt64'.")
+            )
+        }
+        return result
+    }
+
+    func decode(_ type: UInt32.Type) throws -> UInt32 {
+        guard let result = UInt32(self.contentValue) else {
+            throw DecodingError.typeMismatch(
+                UInt32.self,
+                DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode 'UInt32'.")
+            )
+        }
+        return result
+    }
+
+    func decode(_ type: UInt16.Type) throws -> UInt16 {
+        guard let result = UInt16(self.contentValue) else {
+            throw DecodingError.typeMismatch(
+                UInt16.self,
+                DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode 'UInt16'.")
+            )
+        }
+        return result
+    }
+
+    func decode(_ type: UInt8.Type) throws -> UInt8 {
+        guard let result = UInt8(self.contentValue) else {
+            throw DecodingError.typeMismatch(
+                UInt8.self,
+                DecodingError.Context(codingPath: self.codingPath, debugDescription: "Couldn't decode 'UInt8'.")
+            )
+        }
+        return result
+    }
+
+    func decode(_ type: String.Type) throws -> String {
+        return String(self.contentValue)
+    }
+
+    func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
+        return try T.init(from: self)
     }
 }
