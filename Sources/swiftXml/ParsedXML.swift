@@ -141,7 +141,6 @@ public final class ParsedXML: Sendable {
 
     public init(from xml: String) throws {
         enum State {
-            // TODO: handle tag content
             case preFirstTagPadding
             case readFirstOpenTag
             case readingXmlDeclaration
@@ -179,7 +178,7 @@ public final class ParsedXML: Sendable {
         for (index, character) in zip(xml.indices, xml) {
             switch state {
             case .preFirstTagPadding:
-                guard character != " " && character != "\n" else {
+                guard !character.isWhitespace else {
                     continue
                 }
                 guard character == "<" else {
@@ -189,7 +188,7 @@ public final class ParsedXML: Sendable {
             case .readFirstOpenTag:
                 if character == "?" {
                     state = .readingXmlDeclaration
-                } else if character == " " || character == "\n" {
+                } else if character.isWhitespace {
                     fatalError("")
                 } else if character == "/" {
                     fatalError("")
@@ -211,18 +210,17 @@ public final class ParsedXML: Sendable {
                 // TODO: validate declaration maybe?
                 state = .preTagPadding
             case .preTagPadding:
-                guard character != " " && character != "\n" else {
+                guard !character.isWhitespace else {
                     continue
                 }
                 if character == "<" {
-                    startStringIndex = index
                     state = .readTagStart
                 } else {
                     startStringIndex = index
                     state = .readingTagContent
                 }
             case .readTagStart:
-                guard character != " " && character != "\n" else {
+                guard !character.isWhitespace else {
                     fatalError()
                 }
                 guard character != "/" else {
@@ -237,7 +235,7 @@ public final class ParsedXML: Sendable {
                 state = .readingOpeningTag
                 startStringIndex = index
             case .readingOpeningTag:
-                guard character != " " && character != "\n" else {
+                guard !character.isWhitespace else {
                     let tagName = xml[startStringIndex ..< index]
                     treeBuilder.addTag(named: tagName)
                     state = .preAttributePadding
@@ -257,7 +255,7 @@ public final class ParsedXML: Sendable {
                     continue
                 }
             case .preAttributePadding:
-                guard character != " " && character != "\n" else {
+                guard !character.isWhitespace else {
                     continue
                 }
                 guard character != "/" else {
@@ -272,7 +270,7 @@ public final class ParsedXML: Sendable {
                 state = .readingAttributeKey
                 startStringIndex = index
             case .readingAttributeKey:
-                guard character != " " && character != "\n" else {
+                guard !character.isWhitespace else {
                     let attributeKey = xml[startStringIndex ..< index]
                     treeBuilder.addAttribute(key: attributeKey)
                     state = .postAttributeKeyPadding
@@ -289,11 +287,11 @@ public final class ParsedXML: Sendable {
                     state = .preAttributeValuePadding
                     continue
                 }
-                guard character == " " || character == "\n" else {
+                guard character.isWhitespace else {
                     fatalError()
                 }
             case .preAttributeValuePadding:
-                guard character != " " && character != "\n" else {
+                guard !character.isWhitespace else {
                     continue
                 }
                 if character == "'" {
@@ -342,7 +340,7 @@ public final class ParsedXML: Sendable {
                 startStringIndex = index
                 state = .readingNamedClosingTag
             case .readingNamedClosingTag:
-                if character == " " || character == "\n" {
+                if character.isWhitespace {
                     let tagName = xml[startStringIndex ..< index]
                     try treeBuilder.closeTag(named: tagName)
                     state = .postNamedClosingTag
@@ -353,7 +351,7 @@ public final class ParsedXML: Sendable {
                     state = .preTagPadding
                 }
             case .postNamedClosingTag:
-                if character == " " || character == "\n" {
+                if character.isWhitespace {
                     continue
                 }
                 if character == ">" {
@@ -392,7 +390,7 @@ public final class ParsedXML: Sendable {
                     let content = xml[startStringIndex ..< index]
                     try treeBuilder.addContent(value: Self.resolveEscapingContent(value: content))
                     state = .readTagStart
-                } else if character == " " || character == "\n" {
+                } else if character.isWhitespace {
                     endStringIndex = index
                     state = .postContent
                 }
@@ -401,7 +399,7 @@ public final class ParsedXML: Sendable {
                     let content = xml[startStringIndex ..< endStringIndex]
                     try treeBuilder.addContent(value: Self.resolveEscapingContent(value: content))
                     state = .readTagStart
-                } else if character != " " && character != "\n" {
+                } else if !character.isWhitespace {
                     state = .readingTagContent
                 }
             }
@@ -492,4 +490,15 @@ public enum XMLTraversalError: Error {
     case notATag(at: Int)
     case noChildren(at: Int)
     case noContent(at: Int)
+}
+
+fileprivate extension Character {
+    var isWhitespace: Bool {
+        return (
+            self == " " ||
+            self == "\t" ||
+            self == "\r" ||
+            self == "\n"
+        )
+    }
 }
